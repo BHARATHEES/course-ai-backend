@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     "http://localhost:3000", 
-    "https://your-app-name.vercel.app" // REPLACE THIS with your actual Vercel URL later
+    "https://bharathees-course-ai.vercel.app" // REPLACE THIS with your actual Vercel URL later
   ],
   credentials: true
 }));
