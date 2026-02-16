@@ -14,7 +14,7 @@ import History from "./models/History.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors({
   origin: [
