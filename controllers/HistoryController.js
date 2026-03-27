@@ -1,76 +1,41 @@
-import History from "../models/History.js";
+import History  from "../models/History.js";
+import AppError from "../utils/AppError.js";
 
-// Save a search
-export const saveSearch = async (req, res) => {
-  console.log("📥 History POST Request:", req.body);
-  const { userId, searchQuery } = req.body;
-
-  if (!userId || !searchQuery) {
-    console.warn("⚠️ Save blocked: userId or searchQuery is missing.");
-    return res.status(400).json({ error: "userId and searchQuery are required" });
-  }
-
+/** GET /api/history */
+export const getHistory = async (req, res, next) => {
   try {
-    const newEntry = new History({ userId, searchQuery });
-    await newEntry.save();
-    console.log("✅ History saved to MongoDB:", searchQuery);
-    res.status(201).json(newEntry);
-  } catch (err) {
-    console.error("❌ MongoDB Save Error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    const data = await History.find({ userId: req.user.userId }).sort({ createdAt: -1 });
+    res.json({ success: true, data });
+  } catch (err) { next(err); }
 };
 
-// Get user history
-export const getHistory = async (req, res) => {
-  const { userId } = req.params;
+/** POST /api/history */
+export const saveSearch = async (req, res, next) => {
+  const { courseName, analysisResult } = req.body;
+  if (!courseName) return next(new AppError("courseName is required", 400));
   try {
-    const history = await History.find({ userId }).sort({ timestamp: -1 });
-    res.status(200).json(history);
-  } catch (err) {
-    console.error("❌ Fetch Error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    const entry = await new History({
+      userId: req.user.userId,
+      courseName,
+      analysisResult: analysisResult || null,
+    }).save();
+    res.status(201).json({ success: true, data: entry });
+  } catch (err) { next(err); }
 };
 
-/** * NEW: Delete a single history item 
- */
-export const deleteHistoryItem = async (req, res) => {
-  const { id } = req.params; // The MongoDB _id of the history entry entry
-  console.log("🗑️ Deleting history item:", id);
-
+/** DELETE /api/history/all */
+export const deleteAllHistory = async (req, res, next) => {
   try {
-    const result = await History.findByIdAndDelete(id);
-    if (!result) {
-      return res.status(404).json({ message: "History item not found" });
-    }
-    res.status(200).json({ message: "Item deleted successfully" });
-  } catch (err) {
-    console.error("❌ Delete Error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    const r = await History.deleteMany({ userId: req.user.userId });
+    res.json({ success: true, deletedCount: r.deletedCount });
+  } catch (err) { next(err); }
 };
 
-/** * NEW: Clear entire history for a specific user
- */
-export const deleteAllHistory = async (req, res) => {
-  const { userId } = req.params;
-  
-  // Validation: Ensure userId is not empty to avoid accidental global deletion
-  if (!userId || userId === "undefined") {
-    return res.status(400).json({ error: "User ID is required for clearing history" });
-  }
-
-  console.log("🧹 Clearing all history for User:", userId);
-
+/** DELETE /api/history/:id */
+export const deleteHistoryItem = async (req, res, next) => {
   try {
-    const result = await History.deleteMany({ userId });
-    res.status(200).json({ 
-      message: "All history cleared", 
-      deletedCount: result.deletedCount 
-    });
-  } catch (err) {
-    console.error("❌ Clear All Error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    const r = await History.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
+    if (!r) return next(AppError.notFound("History item"));
+    res.json({ success: true });
+  } catch (err) { next(err); }
 };
