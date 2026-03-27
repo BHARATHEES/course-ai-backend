@@ -44,7 +44,6 @@ export const analyzeCourse = async (req, res, next) => {
         analysis: null,
         source: "demo",
         isCached: false,
-        suggestions: buildSuggestions(courseName),
         message: `Could not recognise '${courseName}'. Try a more specific name.`,
       });
     }
@@ -93,15 +92,4 @@ async function sendEmail(userId, courseName, analysisResult) {
   } catch (e) {
     console.warn("[Email] analysis email failed:", e.message);
   }
-}
-
-function buildSuggestions(input) {
-  const popular = [
-    "Python", "JavaScript", "Machine Learning", "Data Science",
-    "React", "Node.js", "AWS", "Docker", "SQL", "Java",
-  ];
-  const lower = input.toLowerCase();
-  return popular
-    .filter((s) => !s.toLowerCase().includes(lower) && !lower.includes(s.toLowerCase()))
-    .slice(0, 5);
 }
