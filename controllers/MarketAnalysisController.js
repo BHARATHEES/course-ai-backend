@@ -89,9 +89,9 @@ export const getMarketInsights = asyncHandler(async (req, res) => {
  * Get all market analysis data including HuggingFace + external APIs
  */
 export const getCompleteMarketAnalysis = asyncHandler(async (req, res) => {
+  const { courseName } = req.query;
   const validation = validateCourseName(courseName);
-  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error
-  if (!courseName) return res.status(400).json({ success: false, error: "courseName is required" });
+  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error });
 
   // Get market insights from HuggingFace
   const insights = await HuggingFaceMarketInsightsService.generateMarketInsights(courseName);
@@ -117,9 +117,9 @@ export const getCompleteMarketAnalysis = asyncHandler(async (req, res) => {
  * Get trend-specific insights
  */
 export const getTrendInsights = asyncHandler(async (req, res) => {
+  const { courseName } = req.query;
   const validation = validateCourseName(courseName);
-  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error
-  if (!courseName) return res.status(400).json({ success: false, error: "courseName is required" });
+  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error });
 
   const insights = await MarketInsights.findOne({ courseName: courseName.toLowerCase() });
   
@@ -209,9 +209,9 @@ export const getDemandInsights = asyncHandler(async (req, res) => {
  * Get community sentiment and engagement metrics
  */
 export const getSentimentInsights = asyncHandler(async (req, res) => {
+  const { courseName } = req.query;
   const validation = validateCourseName(courseName);
-  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error
-  if (!courseName) return res.status(400).json({ success: false, error: "courseName is required" });
+  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error });
 
   const insights = await MarketInsights.findOne({ courseName: courseName.toLowerCase() });
   
@@ -236,9 +236,9 @@ export const getSentimentInsights = asyncHandler(async (req, res) => {
  * Get 5-year historical growth data and trends
  */
 export const getHistoricalInsights = asyncHandler(async (req, res) => {
+  const { courseName } = req.query;
   const validation = validateCourseName(courseName);
-  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error
-  if (!courseName) return res.status(400).json({ success: false, error: "courseName is required" });
+  if (!validation.valid) return res.status(400).json({ success: false, error: validation.error });
 
   try {
     // Only fetch from database, don't generate new data if missing
